@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' http://xxxx 'unsafe-inline';">
+        
+        <title>PestoLinkTx</title>
+
+        <style>
+            .button {
+                width: 50px;
+                height: 50px;
+                margin: 5px;
+                border: none;
+                cursor: pointer;
+                font-size: 18px;
+            }
+    
+            .grey {
+                background-color: grey;
+                color: white;
+            }
+    
+            .green {
+                background-color: green;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>PestoLinkTx - Pesto Presto!</h1>
+
+        <p>BLE Status: <strong id="bleStatus"></strong></p>
+        <button id="connectButton">BLE Connect</button>
+        <button id="disconnectButton">BLE Disconnect</button>
+
+        <hr />
+
+        <p>Gamepad Status: <strong id="gamepadStatus"></strong></p>
+        
+        <hr />   
+
+        <div id="tableContainer"></div>
+
+         <hr />   
+        <div id="buttonsContainer"> </div>
+
+    <script>
+        // Function to toggle button color between grey and green
+        function toggleColor(button) {
+            if (button.classList.contains('grey')) {
+                button.classList.remove('grey');
+                button.classList.add('green');
+            } else {
+                button.classList.remove('green');
+                button.classList.add('grey');
+            }
+        }
+
+        // Create 16 buttons and add them to the buttonsRow div
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        for (let i = 0; i <= 15; i++) {
+            const button = document.createElement('button');
+            button.textContent = i;
+            button.className = 'button grey'; // Initially set to grey
+            button.onclick = function() {
+                toggleColor(button); // Toggle color on click
+            };
+            buttonsContainer.appendChild(button);
+        }
+
+        // Create a table element
+        var table = document.createElement("table");
+        table.setAttribute("border", "1");
+
+        // Create rows and cells for the table
+        for (var i = 0; i < 3; i++) {
+            var row = document.createElement("tr");
+
+            for (var j = 0; j < 4; j++) {
+                var cell = document.createElement("td");
+
+                if (i === 0) {
+                    cell.textContent = "Axis " + j;
+                } else if (i === 1) {
+                    var axisValueElement = document.createElement("td");
+                    axisValueElement.id = "axisValue" + (j + 1);
+                    axisValueElement.textContent = "255";
+                    cell.appendChild(axisValueElement);
+                } else {
+                    var slider = document.createElement("input");
+                    slider.id = "slider" + (j + 1);
+                    slider.className = "slider";
+                    slider.type = "range";
+                    slider.min = "0";
+                    slider.max = "255";
+                    slider.value = "127";
+                    cell.appendChild(slider);
+                }
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+        const tableContainer = document.getElementById("tableContainer");
+        tableContainer.appendChild(table);
+    </script>
+    </body>
+</html>
+<script src=" ./index.js"></script>
