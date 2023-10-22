@@ -91,7 +91,7 @@ let gamepadPacket = new DataView(new ArrayBuffer(6));
 
 var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
 var sliderElements = document.querySelectorAll('[id^="slider"]');
-var buttonElements = document.querySelectorAll('.gamepad-button');
+var buttonElements = document.querySelectorAll('.button-gamepad');
 
 function renderLoop() {
    

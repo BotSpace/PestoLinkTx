@@ -1,0 +1,117 @@
+:root {
+    --alf-green: #4dae50;
+    --alf-beige: #efe4b0;
+}
+
+body {
+    background: var(--alf-beige);
+    font-family: Gotham Rounded, sans-serif;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.grey {
+    background-color: grey;
+}
+
+.green {
+    background-color: var(--alf-green);
+}
+
+
+.box-outer {
+    width: 615px;
+}
+
+.box-title {
+    border-radius: 16px;
+    border-color: var(--alf-green);
+    border-style: solid;
+    border-width: 8px;
+    background: var(--alf-green);
+    margin: 8px;
+    text-justify: center;
+}
+
+.button-container-ble {
+    display: flex;
+}
+
+.button-container-ble button {
+    margin: 8px;
+    flex: 1; /* Makes the buttons share the width equally */
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: grey;
+    color: white;
+    height: 32px;
+    margin: 8px;
+    font-weight: bold;
+}
+
+.button-container-buttons {
+    display: flex;
+}
+
+.button-container-buttons button {
+    height: 50px;
+    margin: 8px;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    flex: 1; /* Makes the buttons share the width equally */
+    color: white;
+    font-weight: bold;
+
+
+}
+
+.box-status {
+    border-radius: 8px;
+    border-color: var(--alf-green);
+    border-style: solid;
+    border-width: 8px;
+    background: var(--alf-green);
+    margin: 8px;
+}
+
+.box-ble {
+    border-radius: 16px;
+    border-color: var(--alf-green);
+    border-style: solid;
+    border-width: 8px;
+    margin: 8px;
+    display: grid;
+
+}
+
+.box-gamepad {
+    border-radius: 16px;
+    border-color: var(--alf-green);
+    border-style: solid;
+    border-width: 8px;
+    margin: 8px;
+
+}
+
+.box-axes{
+    border-radius: 8px;
+    border-color: var(--alf-green);
+    border-style: solid;
+    border-width: 8px;
+    margin: 8px;
+    background-color: var(--alf-green);
+}
+
+.calculator-grid > button {
+    margin: 5px;
+    height: 40px;
+    background-color: var(--alf-green);
+    border-radius: 12px;
+    border: none;
+    color: white;
+    text-align: center;
+
+}
