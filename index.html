@@ -62,8 +62,9 @@
         const buttonsContainer = document.getElementById('buttonsContainer');
         for (let i = 0; i <= 15; i++) {
             const button = document.createElement('button');
+            button.id = "button"+ (i + 1);
             button.textContent = i;
-            button.className = 'button grey'; // Initially set to grey
+            button.className = 'button grey gamepad-button'; // Initially set to grey
             button.onclick = function() {
                 toggleColor(button); // Toggle color on click
             };
@@ -85,12 +86,12 @@
                     cell.textContent = "Axis " + j;
                 } else if (i === 1) {
                     var axisValueElement = document.createElement("td");
-                    axisValueElement.id = "axisValue" + (j + 1);
+                    axisValueElement.id = "axisValue" + (j);
                     axisValueElement.textContent = "255";
                     cell.appendChild(axisValueElement);
                 } else {
                     var slider = document.createElement("input");
-                    slider.id = "slider" + (j + 1);
+                    slider.id = "slider" + (j);
                     slider.className = "slider";
                     slider.type = "range";
                     slider.min = "0";

@@ -1,36 +1,32 @@
 const SERVICE_UUID = '27df26c5-83f4-4964-bae0-d7b7cb0a1f54';
-const CHARACTERISTIC_UUID_axes = ['75f3bc1f-c5c1-4bd7-abac-081a67a0d59d',
-                                  '4eb72916-f242-4b6c-8248-c4b4e89d45d3',
-                                  '185a1d09-ace8-46fd-b7b9-faedfaaa24a0',
-                                  '839b7edd-1c75-4c81-a81d-4085778e01d0'
-                                 ];
-const CHARACTERISTIC_UUID_buttons = 'c8781ee9-4b8b-4241-9846-7a2ff1771c25';
+const CHARACTERISTIC_UUID_GAMEPAD = '452af57e-ad27-422c-88ae-76805ea641a9';
 
 const bleStatus = document.getElementById('bleStatus');
+
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
+
 const gamepadStatus = document.getElementById('gamepadStatus');
 
 connectButton.onclick = connectBLE;
-//disconnectButton.onclick = disconnectBLE;
+disconnectButton.onclick = disconnectBLE;
 
-// Display what's happening to user
-function displayBleStatus(status) {
-   bleStatus.innerHTML = status;
-}
-function displayGamepadStatus(status) {
-   gamepadStatus.innerHTML = status;
-}
-
-let flagBle = false;
+function displayBleStatus(status) { bleStatus.innerHTML = status; }
+function displayGamepadStatus(status) { gamepadStatus.innerHTML = status; }
 
 let device;
 let server;
 let service;
-let characteristic_axes = [];
-let characteristic_buttons;
+let characteristic_gamepad;
 
 async function connectBLE() {
+   if(device) {
+      if(device.gatt.connected){
+         displayBleStatus('> Bluetooth Device is already connected');
+         return;
+      }
+   }
+
    displayBleStatus('Searching devices for service ' + SERVICE_UUID);
 
    try {
@@ -43,14 +39,25 @@ async function connectBLE() {
       service = await server.getPrimaryService(SERVICE_UUID);
       displayBleStatus('Service aquired');
 
-      CHARACTERISTIC_UUID_axes.forEach(async (uuid) => {
-         characteristic_axes.push(await service.getCharacteristic(uuid));
-      });
-
-      characteristic_buttons = await service.getCharacteristic(CHARACTERISTIC_UUID_buttons);
+      characteristic_gamepad = await service.getCharacteristic(CHARACTERISTIC_UUID_GAMEPAD);
       displayBleStatus('Characteristics aquired, BLE connection successful');
-      flagBle = true;
 
+   } catch (error) {
+      displayBleStatus("Error: " + error);
+   }
+}
+
+async function disconnectBLE() {
+   if (!device) return;
+
+   try {
+      displayBleStatus('Disconnecting from Bluetooth Device...');
+      if (device.gatt.connected) {
+         await device.gatt.disconnect();
+         displayBleStatus('Disconnected');
+      } else {
+         displayBleStatus('> Bluetooth Device is already disconnected');
+      }
    } catch (error) {
       displayBleStatus("Error: " + error);
    }
@@ -76,55 +83,83 @@ function getSelectedGamepad() {
 
 function updateGamepads() {
    if (anyGamepadsConnected()) gamepadStatus.innerHTML = "connected";
+   else gamepadStatus.innerHTML = "disconnected";
 }
 
 
-
-
-var lastAxisVal = new Array(4);
-var axisValGamepad = 0;
-var axisValSlider = 0;
+let gamepadPacket = new DataView(new ArrayBuffer(6));
 
 var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
 var sliderElements = document.querySelectorAll('[id^="slider"]');
+var buttonElements = document.querySelectorAll('.gamepad-button');
 
 function renderLoop() {
    
    var gamepad = getSelectedGamepad();
+   if(!gamepad) return;
 
+   var axisValGamepad = 0;
    for (let i = 0; i < 4; i++) {
-      axisValSlider = sliderElements[i].value
-      if (axisValSlider != lastAxisVal[i]) {
-         if(flagBle){
-            sendAxisBLE(axisValSlider, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
-         }
-         axisValueElements[i].textContent = axisValSlider;
-         lastAxisVal[i] = axisValSlider;
-      }
+      if (gamepad.axes[i] == 0) axisValGamepad = 127; else axisValGamepad = Math.round((gamepad.axes[i] + 1) * (255 / 2));
 
-      else if (gamepad){
-         if (gamepad.axes[i] == 0) axisValGamepad = 127; else axisValGamepad = Math.round((gamepad.axes[i] + 1) * (255 / 2));
-         if (axisValGamepad != lastAxisVal[i]) {
-            if(flagBle){
-               sendAxisBLE(axisValGamepad, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
-            }
-         }
-         axisValueElements[i].textContent = axisValGamepad;
-         sliderElements[i].value = axisValGamepad;
-         lastAxisVal[i] = axisValGamepad;
+      axisValueElements[i].textContent = axisValGamepad;
+      sliderElements[i].value = axisValGamepad;
+      gamepadPacket.setUint8(i, axisValGamepad);
+   }
+
+   var buttonValGamepad = 0;
+   for (let i = 0; i < 8; i++) {
+      if(gamepad.buttons[i].pressed){
+         buttonValGamepad |= (gamepad.buttons[i].pressed << i);
+         buttonElements[i].classList.remove('grey');
+         buttonElements[i].classList.add('green');
+      } else {
+         buttonElements[i].classList.remove('green');
+         buttonElements[i].classList.add('grey');        
       }
+   }
+   console.log(buttonValGamepad);
+
+   gamepadPacket.setUint8(4, buttonValGamepad);
+   
+   if(device.gatt.connected){
+      sendPacketBLE(); // Pass the axis index to the sendAxisBLE function
    }
 }
 
-
-let axisData = new DataView(new ArrayBuffer(1));
-
-async function sendAxisBLE(axisVal, characteristic) {
+async function sendPacketBLE() {
    try {
-       axisData.setUint8(0, axisVal);
-       await characteristic.writeValueWithoutResponse(axisData);
+       await characteristic_gamepad.writeValueWithoutResponse(gamepadPacket);
    } catch (error) {
        console.error('Error writing characteristic:', error);
    }
 }
+
+// function renderLoop() {
+   
+//    var gamepad = getSelectedGamepad();
+
+//    for (let i = 0; i < 4; i++) {
+//       axisValSlider = sliderElements[i].value
+//       if (axisValSlider != lastAxisVal[i]) {
+//          if(flagBle){
+//             sendAxisBLE(axisValSlider, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
+//          }
+//          axisValueElements[i].textContent = axisValSlider;
+//          lastAxisVal[i] = axisValSlider;
+//       }
+
+//       else if (gamepad){
+//          if (gamepad.axes[i] == 0) axisValGamepad = 127; else axisValGamepad = Math.round((gamepad.axes[i] + 1) * (255 / 2));
+//          if (axisValGamepad != lastAxisVal[i]) {
+//             if(flagBle){
+//                sendAxisBLE(axisValGamepad, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
+//             }
+//          }
+//          axisValueElements[i].textContent = axisValGamepad;
+//          sliderElements[i].value = axisValGamepad;
+//          lastAxisVal[i] = axisValGamepad;
+//       }
+//    }
+// }
 
