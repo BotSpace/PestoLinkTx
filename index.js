@@ -1,4 +1,4 @@
-const SERVICE_UUID = '27df26c5-83f4-4964-bae0-d7b7cb0a1f54';
+const SERVICE_UUID_PESTOBLE = '27df26c5-83f4-4964-bae0-d7b7cb0a1f54';
 const CHARACTERISTIC_UUID_GAMEPAD = '452af57e-ad27-422c-88ae-76805ea641a9';
 
 const bleStatus = document.getElementById('bleStatus');
@@ -27,16 +27,16 @@ async function connectBLE() {
       }
    }
 
-   displayBleStatus('Searching devices for service ' + SERVICE_UUID);
+   displayBleStatus('Searching for devices with the PestoBLE service');
 
    try {
-      device = await navigator.bluetooth.requestDevice({filters: [{ services: [SERVICE_UUID] }] });
+      device = await navigator.bluetooth.requestDevice({filters: [{ services: [SERVICE_UUID_PESTOBLE] }] });
       displayBleStatus('Found device ' + device.name + ' with service');
 
       server = await device.gatt.connect();
       displayBleStatus('Connected to GATT server');
 
-      service = await server.getPrimaryService(SERVICE_UUID);
+      service = await server.getPrimaryService(SERVICE_UUID_PESTOBLE);
       displayBleStatus('Service aquired');
 
       characteristic_gamepad = await service.getCharacteristic(CHARACTERISTIC_UUID_GAMEPAD);
@@ -82,8 +82,8 @@ function getSelectedGamepad() {
 }
 
 function updateGamepads() {
-   if (anyGamepadsConnected()) gamepadStatus.innerHTML = "connected";
-   else gamepadStatus.innerHTML = "disconnected";
+   if (anyGamepadsConnected()) gamepadStatus.innerHTML = "Connected";
+   else gamepadStatus.innerHTML = "Disconnected";
 }
 
 
