@@ -2,10 +2,8 @@ const SERVICE_UUID_PESTOBLE = '27df26c5-83f4-4964-bae0-d7b7cb0a1f54';
 const CHARACTERISTIC_UUID_GAMEPAD = '452af57e-ad27-422c-88ae-76805ea641a9';
 
 const bleStatus = document.getElementById('bleStatus');
-
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
-
 const gamepadStatus = document.getElementById('gamepadStatus');
 
 connectButton.onclick = connectBLE;
@@ -31,7 +29,7 @@ async function connectBLE() {
 
    try {
       device = await navigator.bluetooth.requestDevice({filters: [{ services: [SERVICE_UUID_PESTOBLE] }] });
-      displayBleStatus('Found device ' + device.name + ' with service');
+      displayBleStatus('Found device ' + device.name);
 
       server = await device.gatt.connect();
       displayBleStatus('Connected to GATT server');
@@ -62,6 +60,7 @@ async function disconnectBLE() {
       displayBleStatus("Error: " + error);
    }
 }
+//---------------------------------------------------------------------------//
 
 document.addEventListener("DOMContentLoaded", () => {
    window.setInterval(renderLoop, 50); // call renderLoop every 20ms
@@ -82,10 +81,9 @@ function getSelectedGamepad() {
 }
 
 function updateGamepads() {
-   if (anyGamepadsConnected()) gamepadStatus.innerHTML = "Connected";
-   else gamepadStatus.innerHTML = "Disconnected";
+   if (anyGamepadsConnected()) displayGamepadStatus("Connected");
+   else displayGamepadStatus("Disconnected");
 }
-
 
 let gamepadPacket = new DataView(new ArrayBuffer(6));
 
@@ -118,7 +116,6 @@ function renderLoop() {
          buttonElements[i].classList.add('grey');        
       }
    }
-   console.log(buttonValGamepad);
 
    gamepadPacket.setUint8(4, buttonValGamepad);
    
@@ -135,31 +132,5 @@ async function sendPacketBLE() {
    }
 }
 
-// function renderLoop() {
-   
-//    var gamepad = getSelectedGamepad();
 
-//    for (let i = 0; i < 4; i++) {
-//       axisValSlider = sliderElements[i].value
-//       if (axisValSlider != lastAxisVal[i]) {
-//          if(flagBle){
-//             sendAxisBLE(axisValSlider, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
-//          }
-//          axisValueElements[i].textContent = axisValSlider;
-//          lastAxisVal[i] = axisValSlider;
-//       }
-
-//       else if (gamepad){
-//          if (gamepad.axes[i] == 0) axisValGamepad = 127; else axisValGamepad = Math.round((gamepad.axes[i] + 1) * (255 / 2));
-//          if (axisValGamepad != lastAxisVal[i]) {
-//             if(flagBle){
-//                sendAxisBLE(axisValGamepad, characteristic_axes[i]); // Pass the axis index to the sendAxisBLE function
-//             }
-//          }
-//          axisValueElements[i].textContent = axisValGamepad;
-//          sliderElements[i].value = axisValGamepad;
-//          lastAxisVal[i] = axisValGamepad;
-//       }
-//    }
-// }
 
