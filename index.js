@@ -63,7 +63,7 @@ async function disconnectBLE() {
 //---------------------------------------------------------------------------//
 
 document.addEventListener("DOMContentLoaded", () => {
-   window.setInterval(renderLoop, 50); // call renderLoop every 20ms
+   window.setInterval(renderLoop, 20); // call renderLoop every 20ms
    window.addEventListener("gamepadconnected", updateGamepads);
    window.addEventListener("gamepaddisconnected", updateGamepads);
 });
